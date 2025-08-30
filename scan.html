@@ -172,55 +172,65 @@
         }
 
         function onResults(results) {
-    if (gestureTriggered) return;
+            if (gestureTriggered) return;
 
-    const handDetected = results.multiHandLandmarks && results.multiHandLandmarks.length > 0;
+            const handDetected = results.multiHandLandmarks && results.multiHandLandmarks.length > 0;
 
-    if (handDetected) {
-        const landmarks = results.multiHandLandmarks[0];
-        const isHandOpen = [8, 12, 16, 20].every(i => landmarks[i].y < landmarks[i - 2].y);
+            if (handDetected) {
+                const landmarks = results.multiHandLandmarks[0];
+                const isHandOpen = [8, 12, 16, 20].every(i => landmarks[i].y < landmarks[i - 2].y);
 
-        if (isHandOpen) {
-            openHandCounter++;
-            showElement(statusMessageElement,
-                `Validasi... ${Math.round((openHandCounter / thresholdFrames) * 100)}%`);
-            
+                if (isHandOpen) {
+                    openHandCounter++;
+                    showElement(statusMessageElement,
+                        `Validasi... ${Math.round((openHandCounter / thresholdFrames) * 100)}%`);
 
-            if (openHandCounter >= thresholdFrames) {
-                startCountdown();
+                    particleColor = 'rgba(0, 255, 255, 0.8)';
+                    lineColor = 'rgba(0, 255, 255, 1)';
+
+                    if (openHandCounter >= thresholdFrames) {
+                        startCountdown();
+                    }
+                } else {
+                    // Tangan terdeteksi tapi tidak terbuka
+                    if (openHandCounter > 0 && openHandCounter < thresholdFrames) {
+                        // Tambahkan efek error merah ke scan-container
+                        scanContainer.classList.add("error");
+                        particleColor = 'rgba(255, 0, 0, 0.8)';
+                        lineColor = 'rgba(255, 0, 0, 1)';
+
+                        setTimeout(() => {
+                            scanContainer.classList.remove("error");
+                            particleColor = 'rgba(0, 255, 255, 0.8)';
+                            lineColor = 'rgba(0, 255, 255, 1)';
+                        }, 1000);
+                    }
+
+                    // Reset counter
+                    openHandCounter = 0;
+                    showElement(statusMessageElement, "Buka telapak tangan untuk memulai.");
+                }
+            } else {
+                // Jika tangan hilang saat progress belum penuh
+                if (openHandCounter > 0 && openHandCounter < thresholdFrames) {
+
+                    //     // Tambahkan efek error merah ke scan-container
+                    scanContainer.classList.add("error");
+                    particleColor = 'rgba(255, 0, 0, 0.8)';
+                        lineColor = 'rgba(255, 0, 0, 1)';
+
+                    setTimeout(() => {
+                        scanContainer.classList.remove("error");
+                        particleColor = 'rgba(0, 255, 255, 0.8)';
+                            lineColor = 'rgba(0, 255, 255, 1)';
+                    }, 1000);
+                }
+
+                // Reset counter agar user harus mulai ulang
+                openHandCounter = 0;
+                showElement(instructionsElement);
             }
-        } else {
-            // Tangan terdeteksi tapi tidak terbuka
-            if (openHandCounter > 0 && openHandCounter < thresholdFrames) {
-                // Tambahkan efek error merah ke scan-container
-                scanContainer.classList.add("error");
-
-                setTimeout(() => {
-                    scanContainer.classList.remove("error");
-                }, 1000);
-            }
-
-            // Reset counter
-            openHandCounter = 0;
-            showElement(statusMessageElement, "Buka telapak tangan untuk memulai.");
         }
-    } else {
-        // Jika tangan hilang saat progress belum penuh
-        if (openHandCounter > 0 && openHandCounter < thresholdFrames) {
-
-        //     // Tambahkan efek error merah ke scan-container
-            scanContainer.classList.add("error");
-
-            setTimeout(() => {
-                scanContainer.classList.remove("error");
-            }, 1000);
-        }
-
-        // Reset counter agar user harus mulai ulang
-        openHandCounter = 0;
-        showElement(instructionsElement);
-    }
-}
 
 
 
@@ -279,6 +289,9 @@
         canvas.height = window.innerHeight;
 
         let particlesArray;
+        let particleColor = 'rgba(0, 255, 255, 0.8)';
+        let lineColor = 'rgba(0, 255, 255, 1)';
+
         const scanContainerElement = document.querySelector('.scan-container');
 
         class Particle {
@@ -290,12 +303,19 @@
                 this.size = size;
                 this.color = color;
             }
+            // draw() {
+            //     ctx.beginPath();
+            //     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+            //     ctx.fillStyle = 'rgba(0, 255, 255, 0.5)';
+            //     ctx.fill();
+            // }
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-                ctx.fillStyle = 'rgba(0, 255, 255, 0.5)';
+                ctx.fillStyle = particleColor;
                 ctx.fill();
             }
+
             update() {
                 if (this.x > canvas.width || this.x < 0) this.directionX *= -1;
                 if (this.y > canvas.height || this.y < 0) this.directionY *= -1;
@@ -354,7 +374,9 @@
                         ((particlesArray[a].y - particlesArray[b].y) ** 2);
                     if (distance < 20000) {
                         let opacityValue = 1 - (distance / 20000);
-                        ctx.strokeStyle = `rgba(0, 255, 255, ${opacityValue})`;
+                        // ctx.strokeStyle = `rgba(0, 255, 255, ${opacityValue})`;
+                        ctx.strokeStyle = lineColor.replace("1)", `${opacityValue})`);
+
                         ctx.lineWidth = 1;
                         ctx.beginPath();
                         ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
