@@ -1,0 +1,283 @@
+:root {
+    --primary-glow: #00ffff;
+    --secondary-glow: #0dff00;
+    --background-start: #0c111e;
+    --background-end: #1a202c;
+    --text-color: #e0f2f7;
+}
+
+body {
+    margin: 0;
+    background: linear-gradient(135deg, var(--background-end) 0%, var(--background-start) 100%);
+    color: var(--text-color);
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Canvas untuk particle background */
+#particle-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+#input_video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scaleX(-1);
+    width: 100%;
+    height: 100%;
+    max-width: 460px;
+    max-height: 460px;
+    object-fit: cover;
+    border-radius: 50%;
+    opacity: 40%;
+    z-index: 0;
+    transition: opacity 0.5s ease;
+}
+
+.scan-container {
+    position: relative;
+    z-index: 1;
+    width: 100vmin;
+    height: 100vmin;
+    max-width: 600px;
+    max-height: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid rgba(0, 255, 255, 0.2);
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.2);
+    animation: strobe-animation 1.5s ease-in-out infinite;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    overflow: hidden;
+}
+
+@keyframes strobe-animation-red {
+    0%, 100% {
+        box-shadow: 0 0 35px red;
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 70px 10px red;
+        transform: scale(1.015);
+    }
+}
+
+.scan-container.error {
+    animation: strobe-animation-red 1s ease-in-out;
+    border-color: rgba(255, 0, 0, 0.3);
+}
+
+.scan-container.access-granted {
+    animation-name: strobe-animation-green;
+    border-color: rgba(13, 255, 0, 0.2);
+}
+
+.futuristic-arm-overlay {
+    position: absolute;
+    width: 70%;
+    height: 70%;
+    object-fit: cover;
+    opacity: 30%;
+    transition: opacity 0.5s ease-in-out;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.scan-container.identifying .futuristic-arm-overlay {
+    opacity: 0;
+}
+
+@keyframes strobe-animation {
+
+    0%,
+    100% {
+        box-shadow: 0 0 35px rgba(0, 255, 255, 0.3);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 70px 10px rgba(0, 255, 255, 0.75);
+        transform: scale(1.015);
+    }
+}
+
+@keyframes strobe-animation-green {
+
+    0%,
+    100% {
+        box-shadow: 0 0 35px var(--secondary-glow);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 70px 10px var(--secondary-glow);
+        transform: scale(1.015);
+    }
+}
+
+.progress-circle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    z-index: 3;
+}
+
+.progress-circle circle {
+    fill: none;
+    stroke-width: 6px;
+}
+
+#progress-bg {
+    stroke: rgba(255, 255, 255, 0.1);
+}
+
+#progress-bar {
+    stroke: var(--primary-glow);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.2s linear, stroke 0.3s ease;
+}
+
+.ui-text-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 4;
+}
+
+.ui-text {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    text-align: center;
+    transition: opacity 0.4s ease-in-out, visibility 0s linear 0.4s;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.7),
+        0 0 20px rgba(0, 255, 255, 0.5),
+        0 0 30px rgba(0, 255, 255, 0.3);
+}
+
+.visible {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transition: opacity 0.4s ease-in-out;
+}
+
+#instructions {
+    font-size: 1.1em;
+    color: var(--primary-glow);
+    animation: pulseText 1.5s infinite;
+}
+
+#status-message {
+    font-size: 1em;
+    color: #ffffff;
+}
+
+#countdown-display {
+    font-size: 8em;
+    color: white;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+}
+
+#launch-message .label {
+    font-size: 1.5em;
+    font-weight: 300;
+    color: var(--primary-glow);
+    text-shadow: 0 0 10px var(--primary-glow);
+}
+
+#launch-message .loading-percent {
+    font-size: 4em;
+    font-weight: 700;
+    margin-top: 10px;
+}
+
+#launch-message .final-message {
+    font-size: 2.5em;
+    font-weight: 700;
+}
+
+@keyframes pulseText {
+
+    0%,
+    100% {
+        text-shadow: 0 0 10px rgba(0, 255, 255, 0.7),
+            0 0 20px rgba(0, 255, 255, 0.5),
+            0 0 30px rgba(0, 255, 255, 0.3);
+        transform: scale(1);
+    }
+
+    50% {
+        text-shadow: 0 0 15px rgba(0, 255, 255, 1),
+            0 0 30px rgba(0, 255, 255, 0.8),
+            0 0 45px rgba(0, 255, 255, 0.5);
+        transform: scale(1.05);
+    }
+}
+
+/* --- CSS BARU UNTUK OVERLAY --- */
+#start-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(12, 17, 30, 0.95);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    text-align: center;
+    color: var(--text-color);
+}
+
+#start-overlay h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.5em;
+    text-shadow: 0 0 15px var(--primary-glow);
+    margin-bottom: 10px;
+}
+
+#start-overlay p {
+    font-size: 1.1em;
+    margin-bottom: 30px;
+}
+
+#start-button {
+    background-color: var(--primary-glow);
+    color: var(--background-start);
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    font-family: 'Orbitron', sans-serif;
+    cursor: pointer;
+    border-radius: 5px;
+    text-transform: uppercase;
+    box-shadow: 0 0 20px var(--primary-glow);
+    transition: all 0.3s ease;
+}
+
+#start-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px var(--primary-glow);
+}
+
+

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        function onResults(results) {
+            if (gestureTriggered) return;
+
+            const handDetected = results.multiHandLandmarks && results.multiHandLandmarks.length > 0;
+
+            if (handDetected) {
+                const landmarks = results.multiHandLandmarks[0];
+                const isHandOpen = [8, 12, 16, 20].every(i => landmarks[i].y < landmarks[i - 2].y);
+
+                if (isHandOpen) {
+                    openHandCounter++;
+                    showElement(statusMessageElement,
+                        `Validasi... ${Math.round((openHandCounter / thresholdFrames) * 100)}%`);
+                    if (openHandCounter >= thresholdFrames) {
+                        startCountdown();
+                    }
+                } else {
+                    openHandCounter = 0;
+                    showElement(statusMessageElement, "Buka telapak tangan untuk memulai.");
+                }
+            } else {
+                if (openHandCounter > 0 && openHandCounter < thresholdFrames) {
+            setProgress((openHandCounter / thresholdFrames) * 100, "red");
+
+            setTimeout(() => {
+                setProgress((openHandCounter / thresholdFrames) * 100, "var(--primary-glow)");
+            }, 1000);
+        }
+
+        openHandCounter = 0;
+        showElement(instructionsElement);
+            }
+        }
+    </script>
+</body>
+</html>
